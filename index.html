@@ -1,143 +1,129 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>بازی مار با موانع تصادفی</title>
-<style>
-  * { box-sizing: border-box; }
-  body { margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background-color: #f0f0f0; }
-  #gameArea { position: relative; width: 300px; height: 300px; border: 2px solid black; }
-  .snake { width: 20px; height: 20px; background-color: green; position: absolute; }
-  .apple { width: 20px; height: 20px; background-color: red; position: absolute; }
-  .obstacle { width: 20px; height: 20px; background-color: gray; position: absolute; }
-  .control-button { width: 50px; height: 50px; margin: 10px; background-color: #ddd; display: flex; justify-content: center; align-items: center; user-select: none; }
-  #controls { display: flex; flex-direction: column; align-items: center; }
-  .horizontal { display: flex; }
-  #credit { text-align: center; margin-top: 20px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English-Persian Translator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 800px;
+        }
+
+        .translator-box {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: vertical;
+            font-size: 16px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            background-color: #1a73e8;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #1557b0;
+        }
+
+        .language-direction {
+            text-align: center;
+            margin-bottom: 1rem;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
 </head>
 <body>
-<div id="gameArea"></div>
-<div id="score">امتیاز: 0</div>
-<div id="controls">
-  <div class="control-button" id="up">بالا</div>
-  <div class="horizontal">
-    <div class="control-button" id="left">چپ</div>
-    <div class="control-button" id="right">راست</div>
-  </div>
-  <div class="control-button" id="down">پایین</div>
-</div>
-<div id="credit">ساخته شده توسط خالد</div>
+    <div class="container">
+        <div class="language-direction" id="languageDirection">
+            English → فارسی
+        </div>
+        
+        <div class="translator-box">
+            <textarea id="sourceText" placeholder="Enter text here..."></textarea>
+            <textarea id="translatedText" placeholder="Translation" readonly></textarea>
+        </div>
 
-<script>
-  const gameArea = document.getElementById('gameArea');
-  const gameSize = 300;
-  const cellSize = 20;
-  let snake = [{x: 140, y: 140}, {x: 120, y: 140}, {x: 100, y: 140}];
-  let apple = {x: 180, y: 140};
-  let obstacles = [];
-  let direction = 'RIGHT';
-  let score = 0;
+        <div class="controls">
+            <button onclick="switchLanguages()">Switch Languages</button>
+            <button onclick="translateText()">Translate</button>
+        </div>
+    </div>
 
-  function drawGame() {
-    gameArea.innerHTML = '';
-    drawSnake();
-    drawApple();
-    drawObstacles();
-    document.getElementById('score').innerText = 'امتیاز: ' + score;
-  }
+    <script>
+        let isEnglishToPersian = true;
 
-  function drawSnake() {
-    snake.forEach(part => {
-      const snakeElement = document.createElement('div');
-      snakeElement.style.left = part.x + 'px';
-      snakeElement.style.top = part.y + 'px';
-      snakeElement.classList.add('snake');
-      gameArea.appendChild(snakeElement);
-    });
-  }
+        function switchLanguages() {
+            isEnglishToPersian = !isEnglishToPersian;
+            document.getElementById('languageDirection').textContent = 
+                isEnglishToPersian ? 'English → فارسی' : 'فارسی → English';
+            
+            // Clear text areas when switching
+            document.getElementById('sourceText').value = '';
+            document.getElementById('translatedText').value = '';
+        }
 
-  function drawApple() {
-    const appleElement = document.createElement('div');
-    appleElement.style.left = apple.x + 'px';
-    appleElement.style.top = apple.y + 'px';
-    appleElement.classList.add('apple');
-    gameArea.appendChild(appleElement);
-  }
+        async function translateText() {
+            const sourceText = document.getElementById('sourceText').value;
+            const targetLang = isEnglishToPersian ? 'fa' : 'en';
+            const sourceLang = isEnglishToPersian ? 'en' : 'fa';
 
-  function drawObstacles() {
-    obstacles.forEach(obstacle => {
-      const obstacleElement = document.createElement('div');
-      obstacleElement.style.left = obstacle.x + 'px';
-      obstacleElement.style.top = obstacle.y + 'px';
-      obstacleElement.classList.add('obstacle');
-      gameArea.appendChild(obstacleElement);
-    });
-  }
+            if (!sourceText) {
+                document.getElementById('translatedText').value = '';
+                return;
+            }
 
-  function moveSnake() {
-    const head = {x: snake[0].x, y: snake[0].y};
-    if (direction === 'RIGHT') head.x += cellSize;
-    if (direction === 'LEFT') head.x -= cellSize;
-    if (direction === 'UP') head.y -= cellSize;
-    if (direction === 'DOWN') head.y += cellSize;
-    snake.unshift(head);
-    if (head.x === apple.x && head.y === apple.y) {
-      score += 10;
-      placeApple();
-    } else {
-      snake.pop();
-    }
-    checkCollision();
-    drawGame();
-  }
+            try {
+                const response = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sourceLang}&tl=${targetLang}&dt=t&q=${encodeURIComponent(sourceText)}`);
+                const data = await response.json();
+                const translatedText = data[0].map(part => part[0]).join('');
+                document.getElementById('translatedText').value = translatedText;
+            } catch (error) {
+                console.error('Translation error:', error);
+                document.getElementById('translatedText').value = 'Error in translation';
+            }
+        }
 
-  function placeApple() {
-    apple.x = Math.floor(Math.random() * (gameSize / cellSize)) * cellSize;
-    apple.y = Math.floor(Math.random() * (gameSize / cellSize)) * cellSize;
-  }
-
-  function placeObstacles() {
-    obstacles = [];
-    for (let i = 0; i < 5; i++) {
-      obstacles.push({
-        x: Math.floor(Math.random() * (gameSize / cellSize)) * cellSize,
-        y: Math.floor(Math.random() * (gameSize / cellSize)) * cellSize
-      });
-    }
-  }
-
-  function checkCollision() {
-    for (let i = 4; i < snake.length; i++) {
-      if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) return gameOver();
-    }
-    obstacles.forEach(obstacle => {
-      if (obstacle.x === snake[0].x && obstacle.y === snake[0].y) return gameOver();
-    });
-    if (snake[0].x < 0 || snake[0].x >= gameSize || snake[0].y < 0 || snake[0].y >= gameSize) return gameOver();
-  }
-
-  function gameOver() {
-    alert('بازی تمام شد! امتیاز شما: ' + score);
-    snake = [{x: 140, y: 140}, {x: 120, y: 140}, {x: 100, y: 140}];
-    apple = {x: 180, y: 140};
-    direction = 'RIGHT';
-    score = 0;
-    placeApple();
-    placeObstacles(); // قرار دادن موانع جدید به صورت تصادفی
-  }
-
-  // اضافه کردن رویدادهای کلیک برای دکمه‌ها
-  document.getElementById('up').addEventListener('click', () => { if (direction !== 'DOWN') direction = 'UP'; });
-  document.getElementById('down').addEventListener('click', () => { if (direction !== 'UP') direction = 'DOWN'; });
-  document.getElementById('left').addEventListener('click', () => { if (direction !== 'RIGHT') direction = 'LEFT'; });
-  document.getElementById('right').addEventListener('click', () => { if (direction !== 'LEFT') direction = 'RIGHT'; });
-
-  placeObstacles(); // قرار دادن موانع اولیه به صورت تصادفی
-  setInterval(moveSnake, 200);
-
-  drawGame();
-</script>
+        // Add instant translation while typing
+        document.getElementById('sourceText').addEventListener('input', () => {
+            translateText();
+        });
+    </script>
 </body>
 </html>
